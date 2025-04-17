@@ -5,20 +5,25 @@ let cardsEl = document.getElementById("your-cards")
 let playerEl = document.getElementById("player-el")
 let historyEl = document.getElementById("history-el")
 let ratioEl = document.getElementById("ratio-el")
+let debtHistoryEl = document.getElementById("debt-history-el")
 
 let startButton = document.getElementById("start_btn")
 let toggleButtons = document.getElementById("toggle")
 let newGameButtons = document.getElementById("toggle-new")
+let currentBetEl = document.getElementById("current-bet")
+let dealerCardsDiv = document.getElementById("dealer-cards")
 
+let currentBet = 0
 let player = {
-    name: "Chips",
+    name: "Per",
     chips: 10
 }
 
 let gameHistory = {
     wins: 0,
     losses: 0,
-    ties: 0
+    ties: 0,
+    debtIncidents: []
 }
 
 let dealerCards = [];
@@ -28,6 +33,8 @@ let sum = 0
 let hasBlackJack = false
 let isAlive = false
 let message = ""
+
+let isInDebt = false
 
 playerEl.textContent = player.name + ": $" + player.chips
 
@@ -74,26 +81,40 @@ function resetGame() {
     document.getElementById("your-cards").innerHTML = ""
     document.getElementById("dealer-cards").innerHTML = ""
 
+    currentBet = 0
+    currentBetEl.textContent = `Current Bet: $${currentBet}`
+    startButton.disabled = true
+
+    document.querySelectorAll('.betting-controls').forEach(el => {
+        el.classList.remove('hidden');
+    });
+
     if (player.chips === 0) {
         messageEl.textContent = "You have no chips left! Please add more to continue."
         return
+    }
+
+    if (player.chips < 0) {
+        messageEl.textContent = "Warning: You are in debt! Current balance: $" + player.chips
+    } else {
+        isInDebt = false
     }
 
     updateHistory()
 }
 
 function startGame() {
-    if (player.chips <= 0) {
-        messageEl.textContent = "You have no chips left! Please add more to start playing."
-        return
-    }
-
-    if (player.chips < 10) {
-        messageEl.textContent = "You need at least 10 chips to play!"
-        return
+    if (currentBet === 0) {
+        messageEl.textContent = "Please place a bet first!";
+        return;
     }
 
     isAlive = true
+
+    document.querySelectorAll('.betting-controls').forEach(el => {
+        el.classList.add('hidden');
+    });
+
     hasBlackJack = false
     cards = [getRandomCard(), getRandomCard()]
     dealerCards = [getRandomCard(), getRandomCard()]
@@ -106,12 +127,21 @@ function startGame() {
         message = "You've got Blackjack! Want to play again?"
         hasBlackJack = true
         isAlive = false
-        player.chips += 10
+        player.chips += currentBet * 2.5
+        currentBet = 0 
+        currentBetEl.textContent = `Current Bet: $${currentBet}`
         gameHistory.wins++
-        updateHistory()
+        messageEl.textContent = message
+        playerEl.textContent = player.name + ": $" + player.chips
         revealDealerCards()
         toggleButtons.style.display = "none"
         newGameButtons.style.display = "block"
+
+        document.querySelectorAll('.betting-controls').forEach(el => {
+            el.classList.remove('hidden');
+        });
+
+        updateHistory()
     } else {
         message = "Game started! Do you want to draw a new card?"
         toggleButtons.style.display = "block"
@@ -184,7 +214,9 @@ function newCard() {
 
         if (sum > 21) {
             message = "You lost! Want to play again?"
-            player.chips -= 10
+            player.chips -= currentBet
+            currentBet = 0
+            currentBetEl.textContent = `Current Bet: $${currentBet}`
             gameHistory.losses++
             updateHistory()
             playerEl.textContent = player.name + ": $" + player.chips
@@ -192,8 +224,24 @@ function newCard() {
             newGameButtons.style.display = "block"
             isAlive = false
         
-            if (player.chips <= 0) {
-                messageEl.textContent = "You have no chips left! Please add more to continue."
+            if (player.chips < 0) {
+                recordDebtIncident()
+                if (confirm("You are in debt! Do you want to continue gambling?")) {
+                    messageEl.textContent = "Be careful with your bets!"
+                    toggleButtons.style.display = "none"
+                    newGameButtons.style.display = "block"
+                    isAlive = false
+
+                    document.querySelectorAll('.betting-controls').forEach(el => {
+                        el.classList.remove('hidden');
+                    });
+                } else {
+                    messageEl.textContent = "Game Over - You ended with a debt of $" + Math.abs(player.chips)
+                    resetGame()
+                    startButton.disabled = true
+                    player.chips = 0
+                    isInDebt = false
+                }
             }
         }
         
@@ -201,7 +249,6 @@ function newCard() {
 }
 
 function revealDealerCards(){
-    const dealerCardsDiv = document.getElementById("dealer-cards")
     dealerCardsDiv.innerHTML = ""
 
     for (let i = 0; i < dealerCards.length; i++) {
@@ -228,18 +275,22 @@ function standCard(){
 
     if (dealerSum > 21 || sum > dealerSum) {
         message = "You win! Want to play again?"
-        player.chips += 10
+        player.chips += currentBet * 2
+        currentBet = 0 
+        currentBetEl.textContent = `Current Bet: $${currentBet}`
         gameHistory.wins++
     } else if (sum < dealerSum) {
         message = "You lost! Want to play again?"
-        player.chips -= 10
+        currentBet = 0
+        currentBetEl.textContent = `Current Bet: $${currentBet}`
         gameHistory.losses++
     } else {
         message = "It's a tie! Want to play again?"
+        player.chips += currentBet
+        currentBet = 0 
+        currentBetEl.textContent = `Current Bet: $${currentBet}`
         gameHistory.ties++
     }
-
-    updateHistory()
 
     playerEl.textContent = player.name + ": $" + player.chips
     messageEl.textContent = message
@@ -247,15 +298,55 @@ function standCard(){
     newGameButtons.style.display = "block"
     isAlive = false
 
-    if (player.chips <= 0) {
-        messageEl.textContent = "You have no chips left! Please add more to continue."
+    document.querySelectorAll('.betting-controls').forEach(el => {
+        el.classList.remove('hidden');
+    });
+
+    if (player.chips < 0) {
+        recordDebtIncident()
+        if (confirm("You are in debt! Do you want to continue gambling?")) {
+            messageEl.textContent = "Be careful with your bets!"
+            toggleButtons.style.display = "none"
+            newGameButtons.style.display = "block"
+            isAlive = false
+        } else {
+            messageEl.textContent = "Game Over - You ended with a debt of $" + Math.abs(player.chips)
+            resetGame()
+            startButton.disabled = true
+            player.chips = 0
+            isInDebt = false
+        }
+    }
+
+    updateHistory()
+}
+
+function placeBet(amount) {
+    if (!isAlive && !hasBlackJack) {  
+        currentBet += amount
+        player.chips -= amount
+        playerEl.textContent = player.name + ": $" + player.chips
+        currentBetEl.textContent = `Current Bet: $${currentBet}`
+
+        if (player.chips < 0 && !isInDebt) {
+            isInDebt = true;
+            messageEl.textContent = "Warning: You are betting with borrowed money!"
+        } else {
+            messageEl.textContent = "Bet placed!"
+        }
+        startButton.disabled = false
     }
 }
 
-function addChips(amount) {
-    player.chips += amount
-    playerEl.textContent = player.name + ": $" + player.chips
-    resetGame()
+function resetBet() {
+    if (!isAlive && !hasBlackJack) {
+        player.chips += currentBet
+        currentBet = 0
+        currentBetEl.textContent = `Current Bet: $${currentBet}`
+        playerEl.textContent = player.name + ": $" + player.chips
+        messageEl.textContent = "Bet reset!"
+        startButton.disabled = true
+    }
 }
 
 function updateHistory() {
@@ -264,6 +355,26 @@ function updateHistory() {
     const totalGames = gameHistory.wins + gameHistory.losses + gameHistory.ties
     const winRate = totalGames > 0 ? ((gameHistory.wins / totalGames) * 100).toFixed(1) : 0
     ratioEl.textContent = `Win Rate: ${winRate}%`
+
+    if (gameHistory.debtIncidents.length > 0) {
+        debtHistoryEl.innerHTML = gameHistory.debtIncidents.join("<br>")
+    } else {
+        debtHistoryEl.textContent = "No debt incidents"
+    }
+
+    if (player.chips < 0 && !isInDebt) {
+        isInDebt = true
+        messageEl.textContent = "Warning: You are betting with borrowed money!"
+        recordDebtIncident()
+    }
+}
+
+function recordDebtIncident() {
+    if (player.chips < 0) {
+        const debtRecord = `Debt: $${Math.abs(player.chips)} at ${new Date().toLocaleTimeString()}`
+        gameHistory.debtIncidents.push(debtRecord)
+        updateHistory()
+    }
 }
 
 resetGame()

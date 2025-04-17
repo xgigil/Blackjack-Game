@@ -103,6 +103,10 @@ button:hover {
     margin-top: 15px;
 }
 
+.betting-controls.hidden {
+    display: none;
+}
+
 #bet-buttons {
     display: flex;
     justify-content: center;
@@ -111,6 +115,9 @@ button:hover {
 }
 
 #game_history {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
     background: rgba(0, 0, 0, 0.8);
     border-radius: 15px;
     padding: 20px;
@@ -125,6 +132,15 @@ button:hover {
     font-size: 2rem;
     margin-bottom: 15px;
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+#debt-history {
+    color: "red";
+}
+
+#debt-history-el {
+    color: #ff4444;
+    font-style: italic;
 }
 
 p {
@@ -148,26 +164,6 @@ p {
 #sum-el, #message-el {
     margin-top: 10px;
     font-size: 1.1rem;
-}
-
-@media (max-width: 768px) {
-    #game_table {
-        padding: 20px;
-    }
-
-    h1 {
-        font-size: 2rem;
-    }
-
-    button {
-        width: 150px;
-        padding: 8px;
-        font-size: 0.9rem;
-    }
-
-    #game_history {
-        padding: 15px;
-    }
 }
 
 #dealer-cards img, #your-cards img {
@@ -196,3 +192,22 @@ p {
     }
 }
 
+@media (max-width: 768px) {
+    #game_table {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    button {
+        width: 150px;
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    #game_history {
+        padding: 15px;
+    }
+}

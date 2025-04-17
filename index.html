@@ -35,22 +35,30 @@
                     <p id="player-sum">Sum: 0</p>
                     <div id="your-cards"></div>
                     <p id="player-el"></p>
-                    <div id="bet-buttons">
-                        <button onclick="addChips(5)">Add 5 Chips</button>
-                        <button onclick="addChips(10)">Add 10 Chips</button>
-                        <button onclick="addChips(50)">Add 50 Chips</button>
+                    <p id="current-bet">Current Bet: $0</p>
+                    <div class="betting-controls">
+                        <div id="bet-buttons">
+                            <button onclick="placeBet(5)">Add 5 Chips</button>
+                            <button onclick="placeBet(10)">Add 10 Chips</button>
+                            <button onclick="placeBet(50)">Add 25 Chips</button>
+                        </div>
+                        <div id="reset_btn">
+                            <button id="reset_btn" onclick="resetBet()">Reset Bet</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="game_history">
-            <h1 id="game_history_font">Game History</h1>
             <div class="history">
+                <h1 id="game_history_font">Game History</h1>
                 <p id="history-el"></p>
-            </div>
-            <div class="ratio">
                 <p id="ratio-el"></p>
+            </div>
+            <div class="debt_history">
+                <h1 id="game_history_font">Debt History</h1>
+                <p id="debt-history-el"></p>
             </div>
         </section>
 
