@@ -192,22 +192,88 @@ p {
     }
 }
 
+@media (max-width: 1200px) {
+    .game_container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dealer, .player {
+        width: 90%;
+        max-width: none;
+    }
+}
+
 @media (max-width: 768px) {
     #game_table {
-        padding: 20px;
+        padding: 15px;
+        width: 95%;
     }
 
     h1 {
         font-size: 2rem;
     }
 
+    #message-el {
+        width: 90%;
+        font-size: 1rem;
+    }
+
     button {
-        width: 150px;
+        width: 130px;
         padding: 8px;
         font-size: 0.9rem;
     }
 
+    #bet-buttons {
+        flex-wrap: wrap;
+    }
+
+    #dealer-cards img, #your-cards img {
+        height: 140px;
+        width: 100px;
+    }
+
     #game_history {
         padding: 15px;
+        flex-direction: column;
+    }
+
+    .history, .debt_history {
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    button {
+        width: 110px;
+        font-size: 0.8rem;
+    }
+
+    #toggle, #toggle-new {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    #dealer-cards img, #your-cards img {
+        height: 120px;
+        width: 85px;
+        margin: 3px;
+    }
+
+    .dealer, .player {
+        padding: 15px;
+    }
+
+    #game_history h1 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 0.9rem;
     }
 }
